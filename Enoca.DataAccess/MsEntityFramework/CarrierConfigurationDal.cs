@@ -19,6 +19,20 @@ namespace Enoca.DataAccess.MsEntityFramework
             _db = db;
         }
 
+        public CarrierConfiguration ClosestCarrierConfig(int orderDesi)
+        {
+            return _db.CarrierConfigurations
+                .OrderBy(x => Math.Abs(x.CarrierMaxDesi - orderDesi))
+                .First();
+        }
+
+        public CarrierConfiguration GetCarrierConfigurationByCarrierId(int carrierId)
+        {
+            return _db.CarrierConfigurations
+                .Where(c => c.CarrierId == carrierId)
+                .First();
+        }
+
         public List<CarrierConfiguration> GetPagedData(PaginationFilter filter)
         {
             return _db.CarrierConfigurations

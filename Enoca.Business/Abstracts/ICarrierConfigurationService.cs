@@ -11,5 +11,7 @@ namespace Enoca.Business.Abstracts
     public interface ICarrierConfigurationService:IGenericService<CarrierConfiguration>
     {
         public List<CarrierConfiguration> GetPagedData(PaginationFilter filter);
+        public CarrierConfiguration GetCarrierConfigurationByCarrierId(int carrierId);
+        public CarrierConfiguration ClosestCarrierConfig(int orderDesi);
     }
 }

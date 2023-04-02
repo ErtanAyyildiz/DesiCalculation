@@ -15,12 +15,14 @@ namespace Enoca.WebAPI.Controllers
         private readonly IValidator<Order> _orderValidator;
         private readonly IOrderService _orderService;
         private readonly ICarrierService _carrierService;
+        private readonly ICarrierConfigurationService _carrierConfigService;
 
-        public OrderController(IValidator<Order> orderValidator, IOrderService orderService, ICarrierService carrierService)
+        public OrderController(IValidator<Order> orderValidator, IOrderService orderService, ICarrierService carrierService, ICarrierConfigurationService carrierConfigService)
         {
             _orderValidator = orderValidator;
             _orderService = orderService;
             _carrierService = carrierService;
+            _carrierConfigService = carrierConfigService;
         }
 
         [HttpGet]
@@ -43,22 +45,42 @@ namespace Enoca.WebAPI.Controllers
         [Route("Create")]
         public IActionResult CreateOrder(int orderDesi, int carrierId)
         {
-
             Order order = new()
             {
                 OrderDesi = orderDesi,
                 OrderDate = DateTime.Now,
                 CarrierId = carrierId //Seçilen Kargo Firması
             };
-            var carrier = _carrierService.GetCarrierByOrder(order.CarrierId);
-            order.OrderCarrierCost = order.OrderDesi * carrier.CarrierPlusDesiCost;
+            var carrierConfig=_carrierConfigService.GetCarrierConfigurationByCarrierId(carrierId);
+            var carrier = _carrierService.GetCarrierByOrder(carrierId);
+
+            var minDesi = carrierConfig.CarrierMinDesi;
+            var maxDesi = carrierConfig.CarrierMaxDesi;
+            var carrierCost = carrierConfig.CarrierCost;
+            var carrierPlusCost = carrier.CarrierPlusDesiCost;
+            var orderDesii = orderDesi;
+
+            if (orderDesii>=minDesi && orderDesii<=maxDesi)
+            {
+                order.OrderCarrierCost= carrierCost;
+            }
+            else
+            {
+                var closestCarrier = _carrierConfigService.ClosestCarrierConfig(orderDesii);
+                var diff = orderDesii - closestCarrier.CarrierMaxDesi;
+                var carrierCosts = closestCarrier.CarrierCost + (diff * carrierPlusCost);
+
+                order.OrderCarrierCost= carrierCosts;
+            }
+
             var validationResult = _orderValidator.Validate(order);
             if (!validationResult.IsValid)
             {
                 return BadRequest(validationResult.Errors);
             }
             _orderService.Add(order);
-            return Ok();
+
+            return Ok("Islem Basari ile olusturuldu");
         }
 
         [HttpDelete]

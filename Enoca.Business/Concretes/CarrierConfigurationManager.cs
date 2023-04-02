@@ -20,9 +20,19 @@ namespace Enoca.Business.Concretes
             _unitOfWork.Save();
         }
 
+        public CarrierConfiguration ClosestCarrierConfig(int orderDesi)
+        {
+            return _unitOfWork.CarrierConfiguration.ClosestCarrierConfig(orderDesi);
+        }
+
         public CarrierConfiguration GetByID(int id)
         {
             return _unitOfWork.CarrierConfiguration.GetByID(id);
+        }
+
+        public CarrierConfiguration GetCarrierConfigurationByCarrierId(int carrierId)
+        {
+            return _unitOfWork.CarrierConfiguration.GetCarrierConfigurationByCarrierId(carrierId);
         }
 
         public IEnumerable<CarrierConfiguration> GetList()

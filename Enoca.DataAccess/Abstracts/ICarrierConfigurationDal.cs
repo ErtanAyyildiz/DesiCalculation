@@ -12,5 +12,7 @@ namespace Enoca.DataAccess.Abstracts
     public interface ICarrierConfigurationDal:IRepository<CarrierConfiguration>
     {
         public List<CarrierConfiguration> GetPagedData(PaginationFilter filter);
+        public CarrierConfiguration GetCarrierConfigurationByCarrierId(int carrierId);
+        public CarrierConfiguration ClosestCarrierConfig(int orderDesi);
     }
 }
